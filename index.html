@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>List (Testing)</title>
+<script src="jquery/jquery.js"></script>
+<script>
+
+$(document).ready(function() {
+// Function to load user list and session message
+function loadUserList() {
+// AJAX GET request to retrieve user list
+$.ajax({
+url: "productService/UserProduct/add",
+type: "GET",
+success: function(response) {
+console.log(response);
+$("#userList").html(response); // Display user list in HTML
+},
+error: function(xhr, status, error) {
+console.log(xhr.status + " : " + xhr.statusText);
+$("#errorSpace").html(xhr.responseText);
+}
+});
+
+}
+
+// Load user list and session message on page load
+loadUserList();
+ $("#addButton").click(function() {
+        // AJAX GET request to addItem endpoint
+console.log("button clicked");
+        $.ajax({
+            url: "productService/item/addItem",
+            type: "GET",
+            success: function(response) {
+                // Display response in the itemSpace div
+console.log(response);
+                $("#itemSpace").text(response);
+            },
+            error: function(xhr, status, error) {
+                console.log("Error adding item: " + xhr.status + " : " + xhr.statusText);
+            }
+        });
+    });
+
+$("#showList").click(function() {
+        // AJAX GET request to addItem endpoint
+console.log("button clicked");
+        $.ajax({
+            url: "productService/UserProduct/list",
+            type: "POST",
+            success: function(response) {
+                // Display response in the itemSpace div
+console.log(response);
+                $("#list").text(response);
+            },
+            error: function(xhr, status, error) {
+                console.log("Error adding item: " + xhr.status + " : " + xhr.statusText);
+            }
+        });
+    });
+
+
+// Event handler for refresh button click
+$("#refreshButton").click(function() {
+loadUserList(); // Reload user list and session message
+});
+$("#forwardButton").click(function() {
+window.location.href = "productService/UserProduct/add";
+});
+});
+
+</script>
+</head>
+<body>
+<h1>Testing</h1>
+<h2> this is a web page </h2>
+<div id="userList"></div>
+<button id="refreshButton">Refresh</button>
+<button id="forwardButton">Go to Next Page</button>
+<button id="addButton">Add</button>
+<button id="showList">List</button>
+<div id="testDiv"></div>
+<div id="errorSpace"></div>
+<div id="itemSpace"></div>
+<div id="list"></div>
+</body>
+</html>
