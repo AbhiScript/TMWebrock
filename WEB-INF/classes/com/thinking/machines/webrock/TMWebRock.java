@@ -377,16 +377,19 @@ for(i=0;i<parameters.length;i++)
 {
 parameter=parameters[i];
 RequestParameter requestParameter=parameter.getAnnotation(RequestParameter.class);
-Object requestScopeData=null;
+getRequestScope getRequestScope=parameter.getAnnotation(getRequestScope.class);
+getSessionScope getSessionScope=parameter.getAnnotation(getSessionScope.class);
+getApplicationScope getApplicationScope=parameter.getAnnotation(getApplicationScope.class);
+Object scopeData=null;
 if(requestParameter!=null)
 {
 String requestValue=requestParameter.value();
-requestScopeData=request.getAttribute(requestValue);
+scopeData=request.getAttribute(requestValue);
 Class<?> parameterType=parameter.getType();
-Object convertedData=convertToType(requestScopeData,parameterType);
+Object convertedData=convertToType(scopeData,parameterType);
 if(parameterType==String.class)
 {
-if(requestScopeData!=null && !parameterType.isAssignableFrom(convertedData.getClass()))
+if(scopeData!=null && !parameterType.isAssignableFrom(convertedData.getClass()))
 {
 parametersMatch=false;
 break;
@@ -394,16 +397,89 @@ break;
 }
 else
 {
-if(requestScopeData!=null && parameterType.isAssignableFrom(convertedData.getClass()))
+if(scopeData!=null && parameterType.isAssignableFrom(convertedData.getClass()))
 {
 parametersMatch=false;
 break;
 }
-
+}
+isAnnotationApplied=true;
+} // request parameter applied
+else if(getRequestScope!=null)
+{
+String requestValue=getRequestScope.value();
+scopeData=request.getAttribute(requestValue);
+Class<?> parameterType=parameter.getType();
+Object convertedData=convertToType(scopeData,parameterType);
+if(parameterType==String.class)
+{
+if(scopeData!=null && !parameterType.isAssignableFrom(convertedData.getClass()))
+{
+parametersMatch=false;
+break;
+}
+}
+else
+{
+if(scopeData!=null && parameterType.isAssignableFrom(convertedData.getClass()))
+{
+parametersMatch=false;
+break;
+}
 }
 isAnnotationApplied=true;
 }
-parameterValues[i]=requestScopeData;
+else if(getSessionScope!=null)
+{
+String requestValue=getSessionScope.value();
+HttpSession session=request.getSession();
+scopeData=session.getAttribute(requestValue);
+Class<?> parameterType=parameter.getType();
+Object convertedData=convertToType(scopeData,parameterType);
+if(parameterType==String.class)
+{
+if(scopeData!=null && !parameterType.isAssignableFrom(convertedData.getClass()))
+{
+parametersMatch=false;
+break;
+}
+}
+else
+{
+if(scopeData!=null && parameterType.isAssignableFrom(convertedData.getClass()))
+{
+parametersMatch=false;
+break;
+}
+}
+isAnnotationApplied=true;
+}
+else if(getApplicationScope!=null)
+{
+String requestValue=getApplicationScope.value();
+ServletContext context=getServletContext();
+scopeData=context.getAttribute(requestValue);
+Class<?> parameterType=parameter.getType();
+Object convertedData=convertToType(scopeData,parameterType);
+if(parameterType==String.class)
+{
+if(scopeData!=null && !parameterType.isAssignableFrom(convertedData.getClass()))
+{
+parametersMatch=false;
+break;
+}
+}
+else
+{
+if(scopeData!=null && parameterType.isAssignableFrom(convertedData.getClass()))
+{
+parametersMatch=false;
+break;
+}
+}
+isAnnotationApplied=true;
+}
+parameterValues[i]=scopeData;
 }// for loop for parameters
 
 if(parametersMatch && isAnnotationApplied)

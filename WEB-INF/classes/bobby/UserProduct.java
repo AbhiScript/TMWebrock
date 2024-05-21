@@ -2,23 +2,23 @@ package bobby;
 import com.thinking.machines.webrock.annotations.*;
 import com.thinking.machines.webrock.scope.*;
 
-@InjectRequestScope
+@InjectApplicationScope
 @Path("/UserProduct")
 public class UserProduct
 {
-private RequestScope requestScope;
-public void setRequestScope(RequestScope requestScope)
+private ApplicationScope applicationScope;
+public void setApplicationScope(ApplicationScope applicationScope)
 {
-this.requestScope=requestScope;
+this.applicationScope=applicationScope;
 }
 @Path("/add")
 @Get
-@Forward("/item/addItem")
+//@Forward("/item/addItem")
 public void addProduct()
 {
 int x=10;
-requestScope.setAttribute("pqr",x);
-requestScope.setAttribute("xyz","Some data");
+applicationScope.setAttribute("pqr",x);
+applicationScope.setAttribute("xyz","Some data");
 }
 
 

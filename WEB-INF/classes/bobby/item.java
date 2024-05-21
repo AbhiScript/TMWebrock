@@ -10,12 +10,12 @@ public class item
 
 @Get
 @Path("/addItem")
-public String addItem(@RequestParameter("xyz")String e,@RequestParameter("pqr")int f)
+public String addItem(@getSessionScope("abc")String e,@getApplicationScope("pqr")int f)
 {
 System.out.println("Something");
 System.out.println("request parameter value : "+e);
 System.out.println("request parameter value : "+f);
-return "Add item got called";
+return e;
 }
 
 @Post

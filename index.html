@@ -7,9 +7,7 @@
 <script>
 
 $(document).ready(function() {
-// Function to load user list and session message
 function loadUserList() {
-// AJAX GET request to retrieve user list
 $.ajax({
 url: "productService/UserProduct/add",
 type: "GET",
@@ -23,48 +21,50 @@ $("#errorSpace").html(xhr.responseText);
 }
 });
 
+$.ajax({
+url: "productService/Employee/addEmployee",
+type: "GET",
+success: function(response){
+console.log(response);
+$("employee").html(response);
+}
+});
 }
 
-// Load user list and session message on page load
+
 loadUserList();
- $("#addButton").click(function() {
-        // AJAX GET request to addItem endpoint
+$("#addButton").click(function() {
 console.log("button clicked");
-        $.ajax({
-            url: "productService/item/addItem",
-            type: "GET",
-            success: function(response) {
-                // Display response in the itemSpace div
+$.ajax({
+url: "productService/item/addItem",
+type: "GET",
+success: function(response) {
 console.log(response);
-                $("#itemSpace").text(response);
-            },
-            error: function(xhr, status, error) {
-                console.log("Error adding item: " + xhr.status + " : " + xhr.statusText);
-            }
-        });
-    });
+$("#itemSpace").text(response);
+},
+error: function(xhr, status, error) {
+console.log("Error adding item: " + xhr.status + " : " + xhr.statusText);
+}
+});
+});
 
 $("#showList").click(function() {
-        // AJAX GET request to addItem endpoint
 console.log("button clicked");
-        $.ajax({
-            url: "productService/UserProduct/list",
-            type: "POST",
-            success: function(response) {
-                // Display response in the itemSpace div
+$.ajax({
+url: "productService/UserProduct/list",
+type: "POST",
+success: function(response) {
 console.log(response);
-                $("#list").text(response);
-            },
-            error: function(xhr, status, error) {
-                console.log("Error adding item: " + xhr.status + " : " + xhr.statusText);
-            }
-        });
-    });
+$("#list").text(response);
+},
+error: function(xhr, status, error) {
+console.log("Error adding item: " + xhr.status + " : " + xhr.statusText);
+}
+});
+});
 
-
-// Event handler for refresh button click
 $("#refreshButton").click(function() {
-loadUserList(); // Reload user list and session message
+loadUserList(); 
 });
 $("#forwardButton").click(function() {
 window.location.href = "productService/UserProduct/add";
@@ -85,5 +85,6 @@ window.location.href = "productService/UserProduct/add";
 <div id="errorSpace"></div>
 <div id="itemSpace"></div>
 <div id="list"></div>
+<div id="employee"></div>
 </body>
 </html>
