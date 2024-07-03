@@ -3,6 +3,7 @@ import com.thinking.machines.webrock.annotations.*;
 import com.thinking.machines.webrock.model.*;
 import com.thinking.machines.webrock.pojo.*;
 import com.thinking.machines.webrock.scope.*;
+import com.thinking.machines.webrock.tokenManager.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.lang.reflect.*;
@@ -10,9 +11,9 @@ import java.lang.annotation.*;
 import java.util.*;
 import java.io.*;
 import java.net.*;
+import com.google.gson.*;
 public class TMWebRock extends HttpServlet
 {
-
 private class Scope
 {
 public boolean isScopeApplied;
@@ -23,6 +24,7 @@ public Scope scope=new Scope();
 
 public void doGet(HttpServletRequest request,HttpServletResponse response)
 {
+RequestContextHolder.setRequest(request);
 try
 {
 ServletContext servletContext=request.getServletContext();
@@ -105,7 +107,7 @@ setterMethod.invoke(serviceInstance,data);
 }
 }
 }
-while(true)
+while(true) // getLoop
 {
 if(!scopeExcecution(service,request,response))
 {
@@ -143,6 +145,112 @@ return;
 }
 else
 {
+c=service.getServiceClass();
+SecuredAccess securedAccessClass=(SecuredAccess)c.getAnnotation(SecuredAccess.class);
+Token token=Token.getInstance();
+String URLString="";
+Service serviceObject=null;
+if(securedAccessClass!=null)
+{
+String checkPost=securedAccessClass.checkPost();
+String guard=securedAccessClass.guard();
+for(Map.Entry<String,Service> map : webRockModel.serviceMap.entrySet())
+{
+URLString=map.getKey();
+serviceObject=map.getValue();
+if(guard.equals(serviceObject.getService().getName()))
+{
+break;
+}
+}
+if(!token.isTokenApplied()) throw new ServiceException("Invalid Access : token is not set");
+try
+{
+HttpSession httpSession=request.getSession();
+SecurityModel securityModel=(SecurityModel)httpSession.getAttribute(guard);
+if(securityModel.securityMap.containsKey(serviceObject.getService()))
+{
+Class<?> checkPostClass=serviceObject.getServiceClass();
+Object instance=checkPostClass.getDeclaredConstructor().newInstance();
+Method guardMethod=serviceObject.getService();
+Class<?>[] parameterTypes=guardMethod.getParameterTypes();
+if(parameterTypes.length>0)
+{
+Object[] parameters = new Object[parameterTypes.length];
+for (int i=0;i<parameterTypes.length;i++)
+{
+if(parameterTypes[i].equals(RequestScope.class))
+{
+parameters[i]=new RequestScope();
+}else if(parameterTypes[i].equals(SessionScope.class))
+{
+parameters[i]=new SessionScope();
+}else if(parameterTypes[i].equals(ApplicationScope.class))
+{
+parameters[i]=new ApplicationScope();
+}else
+{
+throw new ServiceException("Unsupported parameter type: "+parameterTypes[i].getName());
+}
+}
+guardMethod.setAccessible(true);
+guardMethod.invoke(instance,parameters);
+}
+else
+{
+guardMethod.setAccessible(true);
+guardMethod.invoke(instance);
+}
+}
+}catch(Exception e)
+{
+e.printStackTrace();
+throw new ServiceException("Invalid Access : The guard is incorrect, hence the class/service is not accessible");
+}
+}// securedAccessClass!=null
+else
+{
+method=service.getService();
+SecuredAccess securedAccessMethod=(SecuredAccess)method.getAnnotation(SecuredAccess.class);
+if(securedAccessMethod!=null)
+{
+String checkPost=securedAccessMethod.checkPost();
+String guard=securedAccessMethod.guard();
+for(Map.Entry<String,Service> map : webRockModel.serviceMap.entrySet())
+{
+URLString=map.getKey();
+serviceObject=map.getValue();
+if(guard.equals(serviceObject.getService().getName()))
+{
+break;
+}
+}
+if(!token.isTokenApplied()) throw new ServiceException("Invalid Access : token is not set");
+try
+{
+HttpSession httpSession=request.getSession();
+SecurityModel securityModel=(SecurityModel)httpSession.getAttribute(guard);
+if(securityModel.securityMap.containsKey(serviceObject.getService()))
+{
+Class<?> checkPostClass=serviceObject.getServiceClass();
+Object instance=checkPostClass.getDeclaredConstructor().newInstance();
+Method guardMethod=serviceObject.getService();
+guardMethod.setAccessible(true);
+guardMethod.invoke(instance);
+}
+
+}catch(Exception e)
+{
+throw new ServiceException("Invalid Access : The guard is incorrect, hence the class/service is not accessible");
+}
+
+}// securedAccessMethod!=null
+else if(token.isTokenApplied())
+{
+throw new ServiceException("Invalid Access : secured service");
+}
+
+} // else block of securedAccessClass
 continue;
 }
 }
@@ -164,6 +272,8 @@ e.printStackTrace();
 
 public void doPost(HttpServletRequest request,HttpServletResponse response)
 {
+RequestContextHolder.setRequest(request);
+
 try
 {
 ServletContext servletContext=request.getServletContext();
@@ -264,17 +374,10 @@ result=invokeMethod(service,result,request,response);
 response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE,"Cannot access a member of class with unspecified modifiers");
 e.printStackTrace();
 }
-}
-if(method.getReturnType()==void.class)
-{
+} // done
 response.setContentType("text/plain");
-pw.println(serviceURL+" found in bobby");
-}
-else
-{
-response.setContentType("text/plain");
-pw.println(result);
-}
+if(result==null) pw.println("");
+else pw.println(result);
 forwardTo=service.getForwardTo();
 String path="";
 if(forwardTo!="")
@@ -293,6 +396,113 @@ return;
 }
 else
 {
+c=service.getServiceClass();
+SecuredAccess securedAccessClass=(SecuredAccess)c.getAnnotation(SecuredAccess.class);
+Token token=Token.getInstance();
+String URLString="";
+Service serviceObject=null;
+if(securedAccessClass!=null)
+{
+String checkPost=securedAccessClass.checkPost();
+String guard=securedAccessClass.guard();
+for(Map.Entry<String,Service> map : webRockModel.serviceMap.entrySet())
+{
+URLString=map.getKey();
+serviceObject=map.getValue();
+if(guard.equals(serviceObject.getService().getName()))
+{
+break;
+}
+}
+if(!token.isTokenApplied()) throw new ServiceException("Invalid Access : token is not set");
+try
+{
+HttpSession httpSession=request.getSession();
+SecurityModel securityModel=(SecurityModel)httpSession.getAttribute(guard);
+if(securityModel.securityMap.containsKey(serviceObject.getService()))
+{
+Class<?> checkPostClass=serviceObject.getServiceClass();
+Object instance=checkPostClass.getDeclaredConstructor().newInstance();
+Method guardMethod=serviceObject.getService();
+Class<?>[] parameterTypes=guardMethod.getParameterTypes();
+if(parameterTypes.length>0)
+{
+Object[] parameters = new Object[parameterTypes.length];
+for (int i=0;i<parameterTypes.length;i++)
+{
+if(parameterTypes[i].equals(RequestScope.class))
+{
+parameters[i]=new RequestScope();
+}else if(parameterTypes[i].equals(SessionScope.class))
+{
+parameters[i]=new SessionScope();
+}else if(parameterTypes[i].equals(ApplicationScope.class))
+{
+parameters[i]=new ApplicationScope();
+}else
+{
+throw new ServiceException("Unsupported parameter type: "+parameterTypes[i].getName());
+}
+}
+guardMethod.setAccessible(true);
+guardMethod.invoke(instance,parameters);
+}
+else
+{
+guardMethod.setAccessible(true);
+guardMethod.invoke(instance);
+}
+}
+}catch(Exception e)
+{
+e.printStackTrace();
+throw new ServiceException("Invalid Access : The guard is incorrect, hence the class/service is not accessible");
+}
+}// securedAccessClass!=null
+else
+{
+method=service.getService();
+SecuredAccess securedAccessMethod=(SecuredAccess)method.getAnnotation(SecuredAccess.class);
+if(securedAccessMethod!=null)
+{
+String checkPost=securedAccessMethod.checkPost();
+String guard=securedAccessMethod.guard();
+for(Map.Entry<String,Service> map : webRockModel.serviceMap.entrySet())
+{
+URLString=map.getKey();
+serviceObject=map.getValue();
+if(guard.equals(serviceObject.getService().getName()))
+{
+break;
+}
+}
+if(!token.isTokenApplied()) throw new ServiceException("Invalid Access : token is not set");
+try
+{
+HttpSession httpSession=request.getSession();
+SecurityModel securityModel=(SecurityModel)httpSession.getAttribute(guard);
+if(securityModel.securityMap.containsKey(serviceObject.getService()))
+{
+Class<?> checkPostClass=serviceObject.getServiceClass();
+Object instance=checkPostClass.getDeclaredConstructor().newInstance();
+Method guardMethod=serviceObject.getService();
+guardMethod.setAccessible(true);
+guardMethod.invoke(instance);
+}
+
+}catch(Exception e)
+{
+throw new ServiceException("Invalid Access : The guard is incorrect, hence the class/service is not accessible");
+}
+
+}// securedAccessMethod!=null
+else if(token.isTokenApplied())
+{
+throw new ServiceException("Invalid Access : secured service");
+}
+
+} // else block of securedAccessClass
+
 continue;
 }
 }
@@ -381,9 +591,24 @@ getRequestScope getRequestScope=parameter.getAnnotation(getRequestScope.class);
 getSessionScope getSessionScope=parameter.getAnnotation(getSessionScope.class);
 getApplicationScope getApplicationScope=parameter.getAnnotation(getApplicationScope.class);
 Object scopeData=null;
+
 if(requestParameter!=null)
 {
 String requestValue=requestParameter.value();
+Map<String,String[]> parameterMap=request.getParameterMap();
+if(!parameterMap.isEmpty())
+{
+for(Map.Entry<String,String[]> entry : parameterMap.entrySet())
+{
+String key=entry.getKey();
+Object[] values=entry.getValue();
+for(Object value : values)
+{
+Object getValue=convertStringToType(value.toString());
+request.setAttribute(key,getValue);
+}
+}
+}
 scopeData=request.getAttribute(requestValue);
 Class<?> parameterType=parameter.getType();
 Object convertedData=convertToType(scopeData,parameterType);
@@ -487,7 +712,6 @@ if(parametersMatch && isAnnotationApplied)
 Object instance=c.getDeclaredConstructor().newInstance();
 method.setAccessible(true);
 Object returnedValue=method.invoke(instance,parameterValues);
-System.out.println(returnedValue);
 return returnedValue;
 }
 else if(parameters.length==0)
@@ -505,14 +729,66 @@ throw new ServiceException("Error : Type mismatch for parameter ");
 
 for(i=0;i<parameters.length;i++)
 {
-Class<?> parameterType=parameters[i].getType();
-if(result!=null && !parameterType.isAssignableFrom(result.getClass()))
+parameter=parameters[i];
+Class<?> parameterType=parameter.getType();
+Object scopeData=null;
+
+BufferedReader reader=request.getReader();
+if(reader!=null)
+{
+StringBuilder sb=new StringBuilder();
+String line;
+while((line=reader.readLine())!=null)
+{
+sb.append(line);
+}
+if(!sb.toString().trim().isEmpty()) 
+{
+scopeData=(Object)sb;
+result=scopeData;
+}
+}
+
+if(!isPrimitive(parameterType))
+{
+if(parameterType.getAnnotations().length>0)
+{
+Annotation[] annotations = parameter.getAnnotations();
+if (annotations.length > 0)
+{
+System.out.println("Annotations applied to parameter " + parameter.getName() + ":");
+for (Annotation annotation : annotations) {
+System.out.println(" - " + annotation.annotationType().getSimpleName());
+}
+throw new ServiceException("Error: Annotations should not be applied parameter in the ("+method.getName()+") method.");
+}
+}
+if(result!=null)
+{
+Gson gson=new Gson();
+Object jsonObject=gson.fromJson(result.toString(),parameterType);
+if(!parameterType.isAssignableFrom(jsonObject.getClass()))
 {
 parametersMatch=false;
 break;
 }
-parameterValues[i]=result;
+parameterValues[i]=jsonObject;
 }
+else
+{
+parameterValues[i]=null;
+}
+}
+else
+{
+parameterValues[i]=convertPrimitive(result,parameterType);
+if(result!=null && !parameterType.isAssignableFrom(parameterValues[i].getClass()))
+{
+parametersMatch=false;
+break;
+}
+}
+} // for loop
 if(parametersMatch && isAnnotationApplied==false)
 {
 Object instance=c.getDeclaredConstructor().newInstance();
@@ -540,6 +816,94 @@ e.printStackTrace();
 return null;
 }
 
+private Object getDefaultValue(Class<?> type)
+{
+if(type==int.class)
+{
+return 0;
+}
+else if(type==long.class)
+{
+return 0L;
+}
+else if(type==short.class)
+{
+return (short) 0;
+}
+else if(type == byte.class)
+{
+return (byte) 0;
+}
+else if(type==float.class)
+{
+return 0.0f;
+}
+else if(type==double.class)
+{
+return 0.0d;
+}
+else if(type==boolean.class)
+{
+return false;
+}
+else if(type==char.class)
+{
+return '\u0000';
+}
+else
+{
+return null; 
+}
+}
+
+private Object convertPrimitive(Object result, Class<?> type)
+{
+if (result == null || result.toString().isEmpty())
+{
+return getDefaultValue(type);
+}
+String resultStr = result.toString();
+if(type == String.class)
+{
+return resultStr;
+}
+if(type == int.class || type == Integer.class)
+{
+return Integer.parseInt(resultStr);
+}
+else if (type == long.class || type == Long.class)
+{
+return Long.parseLong(resultStr);
+}
+else if (type == short.class || type == Short.class)
+{
+return Short.parseShort(resultStr);
+}
+else if(type==byte.class || type==Byte.class)
+{
+return Byte.parseByte(resultStr);
+}
+else if(type==float.class || type==Float.class)
+{
+return Float.parseFloat(resultStr);
+}
+else if(type==double.class || type==Double.class)
+{
+return Double.parseDouble(resultStr);
+}
+else if (type == boolean.class || type == Boolean.class)
+{
+return Boolean.parseBoolean(resultStr);
+}
+else if(type==char.class || type==Character.class)
+{
+return resultStr.charAt(0);
+}
+else
+{
+return resultStr;
+}
+}
 
 private boolean scopeExcecution(Service service,HttpServletRequest request,HttpServletResponse response)
 {
@@ -601,6 +965,11 @@ e.printStackTrace();
 return scope.isScopeApplied;
 } // scope execution function ends
 
+private boolean isPrimitive(Class<?> c)
+{
+return c.isPrimitive() || c.equals(String.class);
+}
+
 private Object convertToType(Object requestScopeData,Class<?> parameterType)
 {
 if(requestScopeData==null) return null;
@@ -634,9 +1003,23 @@ return ((Number)requestScopeData).byteValue();
 if(requestScopeData instanceof Short)
 {
 return requestScopeData;
-}else if(requestScopeData instanceof Number)
+}else
+{
+if(requestScopeData instanceof Number)
 {
 return ((Number) requestScopeData).shortValue();
+}
+try
+{
+short x;
+x=(short)requestScopeData;
+return x;
+}catch(Exception e)
+{
+System.out.println(e.getMessage());
+return null;
+}
+
 }
 
 }else if(parameterType==int.class || parameterType==Integer.class)
@@ -644,9 +1027,23 @@ return ((Number) requestScopeData).shortValue();
 if(requestScopeData instanceof Integer)
 {
 return requestScopeData;
-}else if(requestScopeData instanceof Number) // here
+}else  // here
+{
+if(requestScopeData instanceof Number)
 {
 return ((Number) requestScopeData).intValue();
+}
+try
+{
+int x;
+x=(int)requestScopeData;
+return x;
+}catch(Exception e)
+{
+System.out.println(e.getMessage());
+return null;
+}
+
 }
 
 }else if(parameterType==long.class || parameterType==Long.class)
@@ -664,9 +1061,23 @@ return ((Number) requestScopeData).longValue();
 if(requestScopeData instanceof Float)
 {
 return requestScopeData;
-}else if(requestScopeData instanceof Number)
+}else
+{
+if(requestScopeData instanceof Number)
 {
 return ((Number) requestScopeData).floatValue();
+}
+try
+{
+long x;
+x=(long)requestScopeData;
+return x;
+}catch(Exception e)
+{
+System.out.println(e.getMessage());
+return null;
+}
+
 }
 
 }else if(parameterType==double.class || parameterType==Double.class)
@@ -674,9 +1085,23 @@ return ((Number) requestScopeData).floatValue();
 if(requestScopeData instanceof Double)
 {
 return requestScopeData;
-}else if(requestScopeData instanceof Number)
+}else
+{
+if(requestScopeData instanceof Number)
 {
 return ((Number) requestScopeData).doubleValue();
+}
+try
+{
+double x;
+x=(double)requestScopeData;
+return x;
+}catch(Exception e)
+{
+System.out.println(e.getMessage());
+return null;
+}
+
 }
 
 }else if(parameterType==char.class || parameterType==Character.class)
@@ -684,12 +1109,76 @@ return ((Number) requestScopeData).doubleValue();
 if(requestScopeData instanceof Character)
 {
 return requestScopeData;
-}else if(requestScopeData instanceof String && ((String)requestScopeData).length()==1)
+}
+else
+{
+if(requestScopeData instanceof String && ((String)requestScopeData).length()==1)
 {
 return ((String)requestScopeData).charAt(0);
+}
+try
+{
+char x;
+x=(char)requestScopeData;
+return x;
+}catch(Exception e)
+{
+System.out.println(e.getMessage());
+return null;
+}
+
 }
 }
 return null;
 } // type convertion
 
+private Object convertStringToType(String value)
+{
+try
+{
+return Integer.parseInt(value);
+}catch(NumberFormatException e)
+{
+}
+try
+{
+return Long.parseLong(value);
+}
+catch(NumberFormatException e)
+{
+}
+try
+{
+return Double.parseDouble(value);
+}catch(NumberFormatException e)
+{
+}
+if(value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false"))
+{
+return Boolean.parseBoolean(value);
+}
+try
+{
+return Float.parseFloat(value);
+}catch(NumberFormatException e)
+{
+}
+try
+{
+return Byte.parseByte(value);
+} catch (NumberFormatException e)
+{
+}
+try
+{
+return Short.parseShort(value);
+}catch(NumberFormatException e)
+{
+}
+if(value.length() == 1)
+{
+return value.charAt(0);
+}
+return value;
+}
 }

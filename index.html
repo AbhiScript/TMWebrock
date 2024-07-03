@@ -1,90 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html lang='en'>
 <head>
-<meta charset="UTF-8">
-<title>List (Testing)</title>
-<script src="jquery/jquery.js"></script>
-<script>
-
-$(document).ready(function() {
-function loadUserList() {
-$.ajax({
-url: "productService/UserProduct/add",
-type: "GET",
-success: function(response) {
-console.log(response);
-$("#userList").html(response); // Display user list in HTML
-},
-error: function(xhr, status, error) {
-console.log(xhr.status + " : " + xhr.statusText);
-$("#errorSpace").html(xhr.responseText);
-}
-});
-
-$.ajax({
-url: "productService/Employee/addEmployee",
-type: "GET",
-success: function(response){
-console.log(response);
-$("employee").html(response);
-}
-});
-}
-
-
-loadUserList();
-$("#addButton").click(function() {
-console.log("button clicked");
-$.ajax({
-url: "productService/item/addItem",
-type: "GET",
-success: function(response) {
-console.log(response);
-$("#itemSpace").text(response);
-},
-error: function(xhr, status, error) {
-console.log("Error adding item: " + xhr.status + " : " + xhr.statusText);
-}
-});
-});
-
-$("#showList").click(function() {
-console.log("button clicked");
-$.ajax({
-url: "productService/UserProduct/list",
-type: "POST",
-success: function(response) {
-console.log(response);
-$("#list").text(response);
-},
-error: function(xhr, status, error) {
-console.log("Error adding item: " + xhr.status + " : " + xhr.statusText);
-}
-});
-});
-
-$("#refreshButton").click(function() {
-loadUserList(); 
-});
-$("#forwardButton").click(function() {
-window.location.href = "productService/UserProduct/add";
-});
-});
-
-</script>
+<meta charset='UTF-8'>
+<title>student CRUD Operation</title>
+<link rel='stylesheet' href='./styles.css'>
+<script src='jquery/jquery.js'></script>
+<script src='student.js'></script>
+<script src='http://localhost:8080/TMWebRock/JSFile?name=student.js'></script>
 </head>
 <body>
-<h1>Testing</h1>
-<h2> this is a web page </h2>
-<div id="userList"></div>
+<h1>Student Management</h1>
+
+<hr>
+
+<h2>Add Student</h2>
+<form id="addForm">
+<label for="addName">Name : </label>
+<input type="text" id="addName" name="name" required>
+<label for="addGender">Gender:</label>
+<input type="text" id="addGender" name="gender" required>
+
+<button type="submit">Add</button>
+</form>
+
+<hr>
+
+<h2>Update Student</h2>
+<form id="updateForm">
+<label for="updateRollNo">Roll No : </label>
+<input type="number" id="updateRollNo" name="rollNo" required>
+<label for="updateName">Name : </label>
+<input type="text" id="updateName" name="name" required>
+<label for="updateGender">Gender : </label>
+<input type="text" id="updateGender" name="gender" required>
+<button type="submit">Update</button>
+</form>
+
+<hr>
+
+<h2>Get Student by Roll Number</h2>
+<form id='getByIdForm'>
+<label for="getByIdRollNo">Roll No : </label>
+<input type="number" id="getByIdRollNo" name="rollNo" required>
+<button type="submit">Get</button>
+</form>
+
+<div id="studentInfo"></div>
+
+<hr>
+<h2>Delete student by roll number</h2>
+<form id="deleteForm">
+<label for='deleteRollNo'>Roll No : </label>
+<input type='number' id='deleteRollNo' name='rollNo' required>
+<button type='submit'>Delete</button>
+</form>
+
+<hr>
+<div id="refreshButton">
 <button id="refreshButton">Refresh</button>
-<button id="forwardButton">Go to Next Page</button>
-<button id="addButton">Add</button>
-<button id="showList">List</button>
-<div id="testDiv"></div>
-<div id="errorSpace"></div>
-<div id="itemSpace"></div>
-<div id="list"></div>
-<div id="employee"></div>
+<table id="studentTable">
+<thead>
+<tr>
+<th>Roll No</th>
+<th>Name</th>
+<th>Gender</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
 </body>
 </html>

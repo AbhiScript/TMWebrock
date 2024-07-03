@@ -43,7 +43,33 @@
 <url-pattern>/starter</url-pattern>
 </servlet-mapping>
 
+<servlet>
+<servlet-name>JSFileServlet</servlet-name>
+<servlet-class>com.thinking.machines.webrock.JSFileServlet</servlet-class>
+<init-param>
+<param-name>SERVICE_PACKAGE_PREFIX</param-name>
+<param-value>bobby</param-value>
+</init-param>
+<load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+<servlet-name>JSFileServlet</servlet-name>
+<url-pattern>/JSFile</url-pattern>
+</servlet-mapping>
 
+<servlet>
+<servlet-name>ServiceDocs</servlet-name>
+<servlet-class>com.thinking.machines.webrock.ServiceDocs</servlet-class>
+<init-param>
+<param-name>CREATE_SERVICE_DOCS</param-name>
+<param-value>bobby</param-value>
+</init-param>
+<load-on-startup>2</load-on-startup>
+</servlet>
+<servlet-mapping>
+<servlet-name>ServiceDocs</servlet-name>
+<url-pattern>/serviceDocs</url-pattern>
+</servlet-mapping>
 
 <servlet>
 <servlet-name>TMWebRock</servlet-name>
@@ -51,8 +77,7 @@
 </servlet>
 <servlet-mapping>
 <servlet-name>TMWebRock</servlet-name>
-<url-pattern>/productService/*</url-pattern>
+<url-pattern>/StudentService/*</url-pattern>
 </servlet-mapping>
-
 
 </web-app>
