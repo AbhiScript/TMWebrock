@@ -344,7 +344,9 @@ public class ExampleService {
 - **Usage**:
   ```java
   @CreatePOJO
-  private POJOClass pojo;
+  public class MyPOJO {
+    // POJO properties
+  }
   ```
 
 #### `@CreateService`
@@ -356,8 +358,6 @@ public class ExampleService {
   public class MyService {
     // Service methods
   }
-  ```
-
   #### Example HTML Usage
 
 Include the following script tag in your HTML file to generate and load the `student.js` file:
