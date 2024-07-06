@@ -130,24 +130,7 @@ The `web.xml` file is the central configuration file for the web application. Be
       <url-pattern>/starter</url-pattern>
     </servlet-mapping>
     ```
-  - `ServiceDocs`:
-    ```xml
-    <servlet>
-      <servlet-name>ServiceDocs</servlet-name>
-      <servlet-class>com.thinking.machines.webrock.ServiceDocs</servlet-class>
-      <init-param>
-        <param-name>CREATE_SERVICE_DOCS</param-name>
-        <param-value>bobby</param-value>
-      </init-param>
-      <load-on-startup>2</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-      <servlet-name>ServiceDocs</servlet-name>
-      <url-pattern>/serviceDocs</url-pattern>
-    </servlet-mapping>
-    ```
-
-  - `TMWebRock`:
+   - `TMWebRock`:
     ```xml
     <servlet>
       <servlet-name>TMWebRock</servlet-name>
@@ -592,6 +575,72 @@ public class UserController
 
 In this example, the `UserController` class has a dependency on `UserService`, which is injected using the `@Autowired(name="userService")` annotation. This approach ensures a clean and maintainable codebase with minimal manual wiring of dependencies.
 
+### `@RequestParameter("key")` Annotation
+
+The `@RequestParameter("key")` annotation is used to inject values from the request URL query string into method parameters. When a method parameter is annotated with `@RequestParameter("key")`, the framework will automatically extract the corresponding value from the query string and inject it into the parameter. This allows for easy access to request parameters within your service methods.
+
+#### Usage Guidelines
+
+1. **Method Parameter Injection:**
+   To inject a request parameter value into a method parameter, annotate the parameter with `@RequestParameter("key")`. The `key` should match the name of the query string parameter in the request URL.
+
+   **Example:**
+   ```java
+   import com.thinking.machines.webrock.annotations.*;
+
+   @Path("/example")
+   public class ExampleService
+   {
+       @Path("/process")
+       public void processRequest(@RequestParameter("id") String id)
+       {
+           // Use the injected request parameter
+           System.out.println("Received ID: " + id);
+       }
+   }
+   ```
+
+2. **Request Handling:**
+   - The framework parses the query string of the incoming request.
+   - It then matches the query string parameters with the keys specified in the `@RequestParameter` annotations.
+   - The corresponding values are injected into the annotated method parameters.
+
+#### Important Considerations
+
+- Ensure that the `key` in the `@RequestParameter` annotation matches the name of the query string parameter in the request URL.
+- The type of the method parameter should be compatible with the query string value. For instance, if the query string value is a number, the parameter should be of a suitable numeric type (e.g., `int` or `Integer`).
+
+### Example in Context
+
+Here is a more comprehensive example demonstrating how to use `@RequestParameter("key")` in a real-world scenario:
+
+```java
+import com.thinking.machines.webrock.annotations.*;
+
+@Path("/user")
+public class UserService
+{
+   @Path("/getDetails")
+   public User getUserDetails(@RequestParameter("userId") int userId)
+   {
+       // Retrieve user details based on the provided userId
+       User user = findUserById(userId);
+       return user;
+   }
+
+   private User findUserById(int userId)
+   {
+       // Logic to find and return a user by their ID
+       // For illustration purposes, returning a dummy user
+       return new User(userId, "John Doe", "john.doe@example.com");
+   }
+}
+```
+
+In this example, the `UserService` class has a method `getUserDetails` that takes a user ID from the request query string and retrieves the corresponding user details. The `userId` parameter is annotated with `@RequestParameter("userId")`, indicating that the value should be extracted from the query string of the request URL.
+
+By using the `@RequestParameter("key")` annotation, you can easily access request parameters in your service methods, making your code cleaner and more maintainable.
+
 #### `@CreatePOJO`
 
 - **Description**: Automatically creates and injects a POJO.
@@ -818,6 +867,43 @@ The `SecuredAccess.java` file is part of the `com.thinking.machines.webrock.anno
 
 In the example above, if a request goes to someMethod, an object of abc.pqr.lmn.SecurityCheck class is created, and its efgh method is called. This method may throw a SecurityException if the user is not authenticated, in which case a 404 error should be sent. If no exception is thrown, the service method is processed. This annotation can be applied to both classes and methods, and the efgh method should execute in the session scope or request scope if those scopes are present in its parameters. If scope injection is required, the scope should be injectable.
 
+### `ServiceDocs`
+
+The `ServiceDocs` servlet is designed to scan all the files in a specified package and generate documentation in PDF format. This PDF file will be created in the `WEB-INF` folder of your web application.
+
+#### Configuration
+
+To configure the `ServiceDocs` servlet, you need to add the following entries to your `web.xml` file:
+
+```xml
+<servlet>
+  <servlet-name>ServiceDocs</servlet-name>
+  <servlet-class>com.thinking.machines.webrock.ServiceDocs</servlet-class>
+  <init-param>
+    <param-name>CREATE_SERVICE_DOCS</param-name>
+    <param-value>bobby</param-value>
+  </init-param>
+  <load-on-startup>2</load-on-startup>
+</servlet>
+<servlet-mapping>
+  <servlet-name>ServiceDocs</servlet-name>
+  <url-pattern>/serviceDocs</url-pattern>
+</servlet-mapping>
+```
+
+#### Explanation
+
+- **`<servlet-name>`**: Specifies the name of the servlet (`ServiceDocs`).
+- **`<servlet-class>`**: Specifies the fully qualified class name of the servlet (`com.thinking.machines.webrock.ServiceDocs`).
+- **`<init-param>`**: Specifies initialization parameters for the servlet.
+  - **`<param-name>`**: The name of the parameter (`CREATE_SERVICE_DOCS`).
+  - **`<param-value>`**: The value of the parameter (`bobby`), which specifies the package to be scanned.
+- **`<load-on-startup>`**: Specifies the order in which the servlet should be loaded. A lower number indicates higher priority.
+- **`<servlet-mapping>`**: Maps the servlet to a specific URL pattern (`/serviceDocs`).
+
+#### Usage
+
+When the `ServiceDocs` servlet is accessed via the URL pattern `/serviceDocs`, it will scan all the classes in the specified package (`bobby` in this case) and generate a PDF documentation file in the `WEB-INF` folder. This documentation includes details about the services, methods, and annotations used in the specified package, providing an easy reference for developers.
 
 ## Running the Application
 
