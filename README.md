@@ -337,6 +337,196 @@ public class ExampleService {
 }
 ```
 
+### `@InjectSessionScope` Annotation
+
+The `@InjectSessionScope` annotation is used to inject a `SessionScope` object into a class, allowing the class to access and manipulate session-scoped attributes. This is achieved by following the Inversion of Control (IoC) principle, where the framework sets the session scope object before invoking any service methods.
+
+#### Usage:
+1. Annotate the class with `@InjectSessionScope`.
+2. Create a `SessionScope` property in the class.
+3. Implement setter and getter methods for the `SessionScope` property.
+4. The framework will call the `setSessionScope` method to inject the session scope object.
+5. Use the `SessionScope` object to set or retrieve session-scoped attributes.
+
+#### Example:
+```java
+import com.thinking.machines.webrock.annotations.*;
+import com.thinking.machines.webrock.scope.*;
+import com.thinking.machines.webrock.*;
+
+@Path("/classpath")
+@InjectSessionScope
+public class MyClass {
+    private SessionScope sessionScope;
+
+    public void setSessionScope(SessionScope sessionScope) {
+        this.sessionScope = sessionScope;
+    }
+
+    @Path("/somePath1")
+    public void exampleMethod1() {
+        Object value = "someValue";
+        sessionScope.setAttribute("key", value);
+    }
+
+    @Path("/somePath2")
+    public void exampleMethod2() {
+        Object value = sessionScope.getAttribute("key");
+        System.out.println(value);
+    }
+}
+```
+
+### `@getSessionScope` Annotation
+
+The `@getSessionScope` annotation is used to retrieve a session-scoped attribute directly into a method parameter.
+
+#### Usage:
+1. Annotate the method parameter with `@getSessionScope("key")`.
+2. The type of the parameter should match the type of the value stored in the session scope.
+
+#### Example:
+```java
+import com.thinking.machines.webrock.annotations.*;
+
+@Path("/examplePath")
+public class MyClass {
+
+    @Path("/somePath")
+    public void exampleMethod(@getSessionScope("key") Object value) {
+        // Now this "value" can be used as a method variable in this service
+        System.out.println(value);
+    }
+}
+```
+
+### `@InjectApplicationScope` Annotation
+
+The `@InjectApplicationScope` annotation is used to inject an `ApplicationScope` object into a class, allowing the class to access and manipulate application-scoped attributes. This is achieved by following the Inversion of Control (IoC) principle, where the framework sets the application scope object before invoking any service methods.
+
+#### Usage:
+1. Annotate the class with `@InjectApplicationScope`.
+2. Create an `ApplicationScope` property in the class.
+3. Implement setter and getter methods for the `ApplicationScope` property.
+4. The framework will call the `setApplicationScope` method to inject the application scope object.
+5. Use the `ApplicationScope` object to set or retrieve application-scoped attributes.
+
+#### Example:
+```java
+import com.thinking.machines.webrock.annotations.*;
+import com.thinking.machines.webrock.scope.*;
+import com.thinking.machines.webrock.*;
+
+@Path("/classpath")
+@InjectApplicationScope
+public class MyClass {
+    private ApplicationScope applicationScope;
+
+    public void setApplicationScope(ApplicationScope applicationScope) {
+        this.applicationScope = applicationScope;
+    }
+
+    @Path("/somePath1")
+    public void exampleMethod1() {
+        Object value = "someValue";
+        applicationScope.setAttribute("key", value);
+    }
+
+    @Path("/somePath2")
+    public void exampleMethod2() {
+        Object value = applicationScope.getAttribute("key");
+        System.out.println(value);
+    }
+}
+```
+
+### `@getApplicationScope` Annotation
+
+The `@getApplicationScope` annotation is used to retrieve an application-scoped attribute directly into a method parameter.
+
+#### Usage:
+1. Annotate the method parameter with `@getApplicationScope("key")`.
+2. The type of the parameter should match the type of the value stored in the application scope.
+
+#### Example:
+```java
+import com.thinking.machines.webrock.annotations.*;
+
+@Path("/examplePath")
+public class MyClass {
+
+    @Path("/somePath")
+    public void exampleMethod(@getApplicationScope("key") Object value) {
+        // Now this "value" can be used as a method variable in this service
+        System.out.println(value);
+    }
+}
+```
+
+### `@InjectRequestScope` Annotation
+
+The `@InjectRequestScope` annotation is used to inject a `RequestScope` object into a class, allowing the class to access and manipulate request-scoped attributes. This is achieved by following the Inversion of Control (IoC) principle, where the framework sets the request scope object before invoking any service methods.
+
+#### Usage:
+1. Annotate the class with `@InjectRequestScope`.
+2. Create a `RequestScope` property in the class.
+3. Implement setter and getter methods for the `RequestScope` property.
+4. The framework will call the `setRequestScope` method to inject the request scope object.
+5. Use the `RequestScope` object to set or retrieve request-scoped attributes.
+
+#### Example:
+```java
+import com.thinking.machines.webrock.annotations.*;
+import com.thinking.machines.webrock.scope.*;
+import com.thinking.machines.webrock.*;
+
+@Path("/classpath")
+@InjectRequestScope
+public class MyClass {
+    private RequestScope requestScope;
+
+    public void setRequestScope(RequestScope requestScope) {
+        this.requestScope = requestScope;
+    }
+
+    @Path("/somePath1")
+    public void exampleMethod1() {
+        Object value = "someValue";
+        requestScope.setAttribute("key", value);
+    }
+
+    @Path("/somePath2")
+    public void exampleMethod2() {
+        Object value = requestScope.getAttribute("key");
+        System.out.println(value);
+    }
+}
+```
+
+### `@getRequestScope` Annotation
+
+The `@getRequestScope` annotation is used to retrieve a request-scoped attribute directly into a method parameter.
+
+#### Usage:
+1. Annotate the method parameter with `@getRequestScope("key")`.
+2. The type of the parameter should match the type of the value stored in the request scope.
+
+#### Example:
+```java
+import com.thinking.machines.webrock.annotations.*;
+
+@Path("/examplePath")
+public class MyClass {
+
+    @Path("/somePath")
+    public void exampleMethod(@getRequestScope("key") Object value) {
+        // Now this "value" can be used as a method variable in this service
+        System.out.println(value);
+    }
+}
+```
+
+These annotations ensure that your services can manage different scopes (session, application, and request) effectively, allowing for a cleaner and more organized way to handle scoped data.
 
 #### `@CreatePOJO`
 
