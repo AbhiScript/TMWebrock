@@ -357,8 +357,9 @@ public class ExampleService {
   @CreateService
   public class MyService {
     // Service methods
-  }
-  #### Example HTML Usage
+  }```
+  
+#### Example HTML Usage
 
 Include the following script tag in your HTML file to generate and load the `student.js` file:
 
