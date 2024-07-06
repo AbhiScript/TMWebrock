@@ -528,6 +528,70 @@ public class MyClass {
 
 These annotations ensure that your services can manage different scopes (session, application, and request) effectively, allowing for a cleaner and more organized way to handle scoped data.
 
+### `@Autowired(name="key")` Annotation
+
+The `@Autowired(name="key")` annotation is designed to facilitate dependency injection at the class-level for properties. When this annotation is used on a property, the framework will inject the corresponding object from a predefined pool of instances mapped by the specified key.
+
+#### Usage Guidelines
+
+1. **Class-level Injection:**
+   To inject a dependency into a class-level property, you annotate the property with `@Autowired(name="key")`. The framework will automatically set the property to the corresponding instance from its pool.
+
+   **Example:**
+   ```java
+   import com.thinking.machines.webrock.annotations.*;
+
+   @Path("/examplePath")
+   public class MyClass
+   {
+       @Autowired(name="someService")
+       private SomeService someService;
+
+       @Path("/someMethod")
+       public void someMethod()
+       {
+           // Use the injected service
+           someService.performAction();
+       }
+   }
+   ```
+
+2. **Dependency Injection Process:**
+   - The framework maintains a pool of instances mapped by keys.
+   - When a service is requested, the framework checks for any properties annotated with `@Autowired(name="key")`.
+   - The corresponding instance from the pool is then injected based on the specified key.
+
+#### Important Considerations
+
+- Ensure that the specified key in the `@Autowired` annotation matches the key used to register the instance in the framework's pool.
+- The type of the injected property must match the type of the instance associated with the key.
+- This annotation simplifies dependency management, ensuring that dependencies are automatically resolved and injected where needed.
+
+### Example in Context
+
+In a real-world scenario, the `@Autowired(name="key")` annotation might be used to inject service instances into controllers or other services. Here’s a comprehensive example:
+
+```java
+import com.thinking.machines.webrock.annotations.*;
+import com.thinking.machines.webrock.*;
+
+@Path("/user")
+public class UserController
+{
+   @Autowired(name="userService")
+   private UserService userService;
+
+   @Path("/getUserDetails")
+   public User getUserDetails()
+   {
+       // Using the injected UserService
+       return userService.findUserById(123); // Example user ID
+   }
+}
+```
+
+In this example, the `UserController` class has a dependency on `UserService`, which is injected using the `@Autowired(name="userService")` annotation. This approach ensures a clean and maintainable codebase with minimal manual wiring of dependencies.
+
 #### `@CreatePOJO`
 
 - **Description**: Automatically creates and injects a POJO.
