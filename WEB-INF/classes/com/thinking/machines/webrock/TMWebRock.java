@@ -756,10 +756,6 @@ if(parameterType.getAnnotations().length>0)
 Annotation[] annotations = parameter.getAnnotations();
 if (annotations.length > 0)
 {
-System.out.println("Annotations applied to parameter " + parameter.getName() + ":");
-for (Annotation annotation : annotations) {
-System.out.println(" - " + annotation.annotationType().getSimpleName());
-}
 throw new ServiceException("Error: Annotations should not be applied parameter in the ("+method.getName()+") method.");
 }
 }
